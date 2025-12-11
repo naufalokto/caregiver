@@ -122,8 +122,8 @@ fun LoginScreen(
             onValueChange = { password = it },
             label = { Text("Password", color = Color(0xB3000000)) },
             modifier = Modifier
-                .width(312.dp)
-                .height(48.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp),
             shape = RoundedCornerShape(10.dp),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -146,7 +146,8 @@ fun LoginScreen(
             textStyle = androidx.compose.ui.text.TextStyle(
                 fontSize = 16.sp,
                 color = Color.Black
-            )
+            ),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(28.dp))
