@@ -35,6 +35,11 @@
             android:name=".RegisterActivity"
             android:exported="false"
             android:theme="@style/Theme.Caregiver.NoActionBar" />
+        
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Caregiver.NoActionBar" />
     </application>
 
 </manifest>

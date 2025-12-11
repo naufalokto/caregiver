@@ -31,12 +31,60 @@ class FirebaseRepository {
 
     // User Authentication
     suspend fun loginUser(email: String, password: String): Result<Unit> {
-        return try {
-            auth.signInWithEmailAndPassword(email, password).await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
+        var retryCount = 0
+        val maxRetries = 3
+        
+        while (retryCount < maxRetries) {
+            try {
+                Log.d("FirebaseRepository", "Starting login for email: $email (attempt ${retryCount + 1}/$maxRetries)")
+                auth.signInWithEmailAndPassword(email, password).await()
+                Log.d("FirebaseRepository", "Login successful")
+                return Result.success(Unit)
+            } catch (e: Exception) {
+                retryCount++
+                
+                // Check if it's a credential error (should not retry)
+                val isCredentialError = e.message?.contains("credential", ignoreCase = true) == true ||
+                        e.message?.contains("incorrect", ignoreCase = true) == true ||
+                        e.message?.contains("malformed", ignoreCase = true) == true ||
+                        e.message?.contains("expired", ignoreCase = true) == true ||
+                        e.message?.contains("WRONG_PASSWORD", ignoreCase = true) == true ||
+                        e.message?.contains("INVALID_EMAIL", ignoreCase = true) == true ||
+                        e.message?.contains("USER_NOT_FOUND", ignoreCase = true) == true ||
+                        e.javaClass.simpleName.contains("InvalidCredentials", ignoreCase = true)
+                
+                // Check if it's a network error (should retry)
+                val isNetworkError = !isCredentialError && (
+                        e.message?.contains("end of stream", ignoreCase = true) == true ||
+                        e.message?.contains("network", ignoreCase = true) == true ||
+                        e.message?.contains("timeout", ignoreCase = true) == true ||
+                        e.message?.contains("unexpected", ignoreCase = true) == true ||
+                        e.message?.contains("UNAVAILABLE", ignoreCase = true) == true
+                )
+                
+                Log.e("FirebaseRepository", "Login error (attempt $retryCount): ${e.message}")
+                Log.e("FirebaseRepository", "Error type: ${e.javaClass.simpleName}")
+                
+                // Don't retry for credential errors
+                if (isCredentialError) {
+                    Log.d("FirebaseRepository", "Credential error detected, not retrying")
+                    return Result.failure(e)
+                }
+                
+                // Retry only for network errors
+                if (isNetworkError && retryCount < maxRetries) {
+                    val delayTime = retryCount * 3000L // Progressive delay: 3s, 6s, 9s
+                    Log.d("FirebaseRepository", "Network error detected, retrying in ${delayTime/1000} seconds...")
+                    delay(delayTime) // Progressive delay before retry
+                    continue
+                } else {
+                    // If it's not a network error or max retries reached, return failure
+                    return Result.failure(e)
+                }
+            }
         }
+        
+        return Result.failure(Exception("Login failed after $maxRetries attempts"))
     }
 
     suspend fun registerUser(
