@@ -89,8 +89,7 @@ fun RegisterScreen(
             onValueChange = { username = it },
             label = { Text("Username", color = Color(0xB3000000)) },
             modifier = Modifier
-                .width(312.dp)
-                .height(48.dp),
+                .width(312.dp),
             shape = RoundedCornerShape(10.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0x66000000),
@@ -113,8 +112,7 @@ fun RegisterScreen(
             onValueChange = { email = it },
             label = { Text("Email", color = Color(0xB3000000)) },
             modifier = Modifier
-                .width(312.dp)
-                .height(48.dp),
+                .width(312.dp),
             shape = RoundedCornerShape(10.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             colors = OutlinedTextFieldDefaults.colors(
@@ -138,8 +136,7 @@ fun RegisterScreen(
             onValueChange = { phoneNumber = it },
             label = { Text("Phone Number", color = Color(0xB3000000)) },
             modifier = Modifier
-                .width(312.dp)
-                .height(48.dp),
+                .width(312.dp),
             shape = RoundedCornerShape(10.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             colors = OutlinedTextFieldDefaults.colors(
@@ -169,7 +166,6 @@ fun RegisterScreen(
                 label = { Text("Gender", color = Color(0xB3000000)) },
                 modifier = Modifier
                     .width(312.dp)
-                    .height(48.dp)
                     .menuAnchor(),
                 shape = RoundedCornerShape(10.dp),
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = genderExpanded) },
@@ -208,8 +204,7 @@ fun RegisterScreen(
             onValueChange = { password = it },
             label = { Text("Password", color = Color(0xB3000000)) },
             modifier = Modifier
-                .width(312.dp)
-                .height(48.dp),
+                .width(312.dp),
             shape = RoundedCornerShape(10.dp),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),

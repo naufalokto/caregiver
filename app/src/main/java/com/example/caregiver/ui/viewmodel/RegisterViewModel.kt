@@ -1,5 +1,6 @@
 package com.example.caregiver.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.caregiver.data.repository.FirebaseRepository
@@ -85,18 +86,30 @@ class RegisterViewModel : ViewModel() {
             
             val result = repository.registerUser(email, password, username, phoneNumber, gender)
             if (result.isSuccess) {
+                Log.d("RegisterViewModel", "Registration successful")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isRegisterSuccess = true
                 )
             } else {
                 val exception = result.exceptionOrNull() ?: Exception("Registration failed")
+                Log.e("RegisterViewModel", "Registration failed: ${exception.message}")
+                Log.e("RegisterViewModel", "Exception: ${exception.javaClass.name}")
+                exception.printStackTrace()
+                
                 val errorMsg = when {
-                    exception.message?.contains("EMAIL_ALREADY_IN_USE") == true -> "Email already registered"
-                    exception.message?.contains("INVALID_EMAIL") == true -> "Invalid email format"
-                    exception.message?.contains("WEAK_PASSWORD") == true -> "Password is too weak"
-                    exception.message?.contains("network") == true -> "Network error. Please check your connection"
-                    else -> exception.message ?: "Registration failed"
+                    exception.message?.contains("EMAIL_ALREADY_IN_USE", ignoreCase = true) == true -> "Email already registered"
+                    exception.message?.contains("INVALID_EMAIL", ignoreCase = true) == true -> "Invalid email format"
+                    exception.message?.contains("WEAK_PASSWORD", ignoreCase = true) == true -> "Password is too weak"
+                    exception.message?.contains("end of stream", ignoreCase = true) == true -> "Connection interrupted. Please check your internet and try again"
+                    exception.message?.contains("network", ignoreCase = true) == true -> "Network error. Please check your connection"
+                    exception.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true -> "Permission denied. Please check Firestore rules"
+                    exception.message?.contains("Missing or insufficient permissions", ignoreCase = true) == true -> "Permission denied. Please check Firestore rules"
+                    exception.message?.contains("socket", ignoreCase = true) == true -> "Connection error. Please check your internet connection"
+                    exception.message?.contains("EPERM", ignoreCase = true) == true -> "Permission error. Please check Firestore rules or internet connection"
+                    exception.message?.contains("UNAVAILABLE", ignoreCase = true) == true -> "Service unavailable. Please try again later"
+                    exception.message?.contains("timeout", ignoreCase = true) == true -> "Request timeout. Please check your internet connection"
+                    else -> "Error: ${exception.message ?: exception.toString()}"
                 }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
